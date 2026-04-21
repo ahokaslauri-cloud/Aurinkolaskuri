@@ -3,54 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
 
-
-st.markdown("""
-<style>
-
-/* ===== OTSIKOT (keltainen) ===== */
-h1, h2, h3 {
-    color: #F2C94C !important;
-}
-
-/* ===== NORMAALI TEKSTI ===== */
-p, label, span {
-    color: #EAEAEA !important;
-}
-
-/* ===== KUUKAUDET (text_input) ===== */
-div[data-testid="stTextInput"] input {
-    color: #FFFFFF !important;
-    font-weight: 600 !important;
-    background-color: #121417 !important;
-    border: 1px solid #2A2E33 !important;
-}
-
-/* ===== KULUTUS & TUOTANTO (number_input) ===== */
-div[data-testid="stNumberInput"] input {
-    color: #FFFFFF !important;
-    background-color: #121417 !important;
-    border: 1px solid #2A2E33 !important;
-}
-
-/* ===== INPUT LABELIT ===== */
-div[data-testid="stNumberInput"] label,
-div[data-testid="stTextInput"] label {
-    color: #DADDE2 !important;
-}
-
-/* ===== PLACEHOLDER ===== */
-::placeholder {
-    color: #AAAAAA !important;
-}
-
-/* ===== VARMISTUS ===== */
-input {
-    color: #FFFFFF !important;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
 st.set_page_config(
     page_title="Aurinkosähköanalyysi",
     layout="wide"
@@ -58,148 +10,170 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    .stApp {
-        background: linear-gradient(180deg, #0b0c10 0%, #111318 100%);
-    }
+.stApp {
+    background: linear-gradient(180deg, #0b0c10 0%, #111318 100%);
+}
 
-    .block-container {
-        max-width: 1120px;
-        padding-top: 2rem;
-        padding-bottom: 3rem;
-    }
+.block-container {
+    max-width: 1120px;
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+}
 
-    h1 {
-        color: #F2C94C;
-        text-align: center;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        margin-bottom: 0.3rem;
-    }
+/* Hero */
+.hero-wrap {
+    text-align: center;
+    margin-bottom: 2rem;
+}
 
-    h2, h3 {
-        color: #F2C94C;
-        font-weight: 650;
-        letter-spacing: -0.01em;
-    }
+.hero-title {
+    color: #F2C94C;
+    font-size: 2.9rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin-bottom: 0.35rem;
+}
 
-    p, label, .stMarkdown, .stText {
-        color: #EAEAEA;
-    }
+.hero-subtitle {
+    color: #F2C94C;
+    font-size: 1.12rem;
+    font-weight: 500;
+    opacity: 0.88;
+    margin-bottom: 0.9rem;
+}
 
-    .section-intro {
-        text-align: center;
-        color: #C7C9CE;
-        font-size: 1.05rem;
-        margin-bottom: 2rem;
-    }
+.hero-line {
+    width: 140px;
+    height: 3px;
+    background: linear-gradient(90deg, rgba(242,201,76,0.15), #F2C94C, rgba(242,201,76,0.15));
+    border-radius: 999px;
+    margin: 0 auto;
+}
 
-    .custom-card {
-        background: rgba(26, 29, 33, 0.96);
-        border: 1px solid #2B2F36;
-        border-radius: 18px;
-        padding: 1.35rem 1.35rem 1.1rem 1.35rem;
-        margin-bottom: 1.2rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.28);
-    }
+/* Headings */
+h1, h2, h3 {
+    color: #F2C94C !important;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
 
-    .card-divider {
-        border: none;
-        border-top: 1px solid #343942;
-        margin: 0.5rem 0 1rem 0;
-    }
+/* General text */
+p, label, span, div {
+    color: #EAEAEA;
+}
 
-    div[data-testid="stNumberInput"] input,
-    div[data-testid="stTextInput"] input {
-        background-color: #101216 !important;
-        color: #F3F4F6 !important;
-        border: 1px solid #383E47 !important;
-        border-radius: 10px !important;
-    }
+/* Cards */
+.custom-card {
+    background: rgba(26, 29, 33, 0.96);
+    border: 1px solid #2B2F36;
+    border-radius: 18px;
+    padding: 1.35rem 1.35rem 1.15rem 1.35rem;
+    margin-bottom: 1.2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.28);
+}
 
-    div[data-testid="stNumberInput"] label,
-    div[data-testid="stTextInput"] label {
-        color: #D7D9DD !important;
-        font-weight: 500;
-    }
+.card-divider {
+    border: none;
+    border-top: 1px solid #343942;
+    margin: 0.45rem 0 1rem 0;
+}
 
-    div[data-testid="stButton"] button {
-        background: #F2C94C;
-        color: #111111;
-        border: none;
-        border-radius: 12px;
-        font-weight: 700;
-        padding: 0.72rem 1.25rem;
-        box-shadow: 0 6px 18px rgba(242, 201, 76, 0.28);
-    }
+/* Inputs */
+div[data-testid="stNumberInput"] input,
+div[data-testid="stTextInput"] input {
+    background-color: #121417 !important;
+    color: #FFFFFF !important;
+    border: 1px solid #2A2E33 !important;
+    border-radius: 10px !important;
+}
 
-    div[data-testid="stButton"] button:hover {
-        background: #E0B93F;
-        color: #111111;
-    }
+div[data-testid="stNumberInput"] label,
+div[data-testid="stTextInput"] label {
+    color: #DADDE2 !important;
+    font-weight: 500;
+}
 
-    .month-header {
-        color: #AEB4BC;
-        font-size: 0.95rem;
-        font-weight: 700;
-        margin-bottom: 0.35rem;
-    }
+.month-header {
+    color: #DADDE2;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+}
 
-    .month-label input {
-        background-color: #171A1F !important;
-        color: #F0F1F2 !important;
-        font-weight: 600 !important;
-        border: 1px solid #30343B !important;
-    }
+.month-label input {
+    font-weight: 600 !important;
+    background-color: #171A1F !important;
+    color: #FFFFFF !important;
+    border: 1px solid #30343B !important;
+}
 
-    .results-title {
-        color: #F2C94C;
-        font-size: 1.6rem;
-        font-weight: 700;
-        margin-bottom: 0.8rem;
-    }
+/* Button */
+div[data-testid="stButton"] button {
+    background: #F2C94C;
+    color: #111111 !important;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    padding: 0.72rem 1.25rem;
+    box-shadow: 0 6px 18px rgba(242, 201, 76, 0.28);
+}
 
-    .metric-card {
-        background: #181B20;
-        border: 1px solid #2C3139;
-        border-radius: 16px;
-        padding: 1rem 1rem 0.9rem 1rem;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
-        height: 100%;
-    }
+div[data-testid="stButton"] button:hover {
+    background: #E0B93F;
+    color: #111111 !important;
+}
 
-    .metric-label {
-        color: #C7CBD1;
-        font-size: 0.95rem;
-        margin-bottom: 0.45rem;
-    }
+/* Result cards */
+.results-title {
+    color: #F2C94C;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+}
 
-    .metric-value {
-        color: #F2C94C;
-        font-size: 1.95rem;
-        font-weight: 750;
-        line-height: 1.1;
-    }
+.metric-card {
+    background: #181B20;
+    border: 1px solid #2C3139;
+    border-radius: 16px;
+    padding: 1rem 1rem 0.9rem 1rem;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+    height: 100%;
+}
 
-    .metric-unit {
-        color: #D8DADF;
-        font-size: 1rem;
-        font-weight: 500;
-        margin-left: 0.25rem;
-    }
+.metric-label {
+    color: #C7CBD1 !important;
+    font-size: 0.95rem;
+    margin-bottom: 0.45rem;
+}
 
-    .sub-metric-value {
-        color: #F3F4F6;
-        font-size: 1.75rem;
-        font-weight: 720;
-        line-height: 1.1;
-    }
+.metric-value {
+    color: #F2C94C !important;
+    font-size: 1.95rem;
+    font-weight: 750;
+    line-height: 1.1;
+}
 
-    .subtle-line {
-        border: none;
-        border-top: 1px solid #343942;
-        margin-top: 1.1rem;
-        margin-bottom: 1.1rem;
-    }
+.sub-metric-value {
+    color: #F3F4F6 !important;
+    font-size: 1.75rem;
+    font-weight: 720;
+    line-height: 1.1;
+}
+
+.metric-unit {
+    color: #D8DADF !important;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-left: 0.25rem;
+}
+
+.subtle-line {
+    border: none;
+    border-top: 1px solid #343942;
+    margin-top: 1.1rem;
+    margin-bottom: 1.1rem;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -326,6 +300,7 @@ def render_chart(consumption_data, production_data):
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.grid(axis="y", color="#31353C", alpha=0.9, linestyle="-", linewidth=0.8)
+
     legend = ax.legend(frameon=False)
     for text in legend.get_texts():
         text.set_color("#EAEAEA")
@@ -346,9 +321,14 @@ def metric_card(label, value, unit="", highlight=False):
     )
 
 
-st.title("Aurinkosähköanalyysi")
 st.markdown(
-    '<div class="section-intro">Energia, omakäyttö ja kannattavuus yhdellä näkymällä.</div>',
+    """
+    <div class="hero-wrap">
+        <div class="hero-title">Aurinkosähköanalyysi</div>
+        <div class="hero-subtitle">Energia, omakäyttö ja kannattavuus yhdellä näkymällä.</div>
+        <div class="hero-line"></div>
+    </div>
+    """,
     unsafe_allow_html=True
 )
 
