@@ -130,67 +130,34 @@ default_production = "61\n180\n423\n526\n667\n666\n658\n543\n337\n178\n50\n24"
 
 st.subheader("Syöttötiedot")
 
-default_consumption = "1500\n1400\n1300\n1000\n800\n700\n600\n750\n900\n1200\n1450\n1600"
-default_production = "61\n180\n423\n526\n667\n666\n658\n543\n337\n178\n50\n24"
+months_full = [
+    "Tammikuu", "Helmikuu", "Maaliskuu", "Huhtikuu",
+    "Toukokuu", "Kesäkuu", "Heinäkuu", "Elokuu",
+    "Syyskuu", "Lokakuu", "Marraskuu", "Joulukuu"
+]
 
-month_labels = "\n".join([
-    "Tammikuu",
-    "Helmikuu",
-    "Maaliskuu",
-    "Huhtikuu",
-    "Toukokuu",
-    "Kesäkuu",
-    "Heinäkuu",
-    "Elokuu",
-    "Syyskuu",
-    "Lokakuu",
-    "Marraskuu",
-    "Joulukuu"
-])
+default_consumption = [1500,1400,1300,1000,800,700,600,750,900,1200,1450,1600]
+default_production = [61,180,423,526,667,666,658,543,337,178,50,24]
 
-input_col1, input_col2 = st.columns(2)
+df = pd.DataFrame({
+    "Kuukausi": months_full,
+    "Kulutus (kWh)": default_consumption,
+    "Tuotanto (kWh)": default_production
+})
 
-with input_col1:
-    st.markdown("**1. Kulutusprofiili (kWh/kk)**")
-    label_col, area_col = st.columns([1, 3])
+edited_df = st.data_editor(
+    df,
+    num_rows="fixed",
+    use_container_width=True,
+    column_config={
+        "Kuukausi": st.column_config.TextColumn(disabled=True),
+        "Kulutus (kWh)": st.column_config.NumberColumn(),
+        "Tuotanto (kWh)": st.column_config.NumberColumn()
+    }
+)
 
-    with label_col:
-        st.text_area(
-            "Kuukaudet kulutus",
-            value=month_labels,
-            height=250,
-            disabled=True,
-            label_visibility="collapsed"
-        )
-
-    with area_col:
-        consumption_input = st.text_area(
-            "Kulutus",
-            value=default_consumption,
-            height=250,
-            label_visibility="collapsed"
-        )
-
-with input_col2:
-    st.markdown("**2. Tuotantoennuste (kWh/kk)**")
-    label_col, area_col = st.columns([1, 3])
-
-    with label_col:
-        st.text_area(
-            "Kuukaudet tuotanto",
-            value=month_labels,
-            height=250,
-            disabled=True,
-            label_visibility="collapsed"
-        )
-
-    with area_col:
-        production_input = st.text_area(
-            "Tuotanto",
-            value=default_production,
-            height=250,
-            label_visibility="collapsed"
-        )
+consumption_data = edited_df["Kulutus (kWh)"].tolist()
+production_data = edited_df["Tuotanto (kWh)"].tolist()
 
 if st.button("Laske ja piirrä kaavio", use_container_width=True):
     try:
