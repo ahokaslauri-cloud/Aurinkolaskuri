@@ -187,45 +187,67 @@ with col2:
 
 st.subheader("Syöttötiedot")
 
+months_full = [
+    "Tammikuu", "Helmikuu", "Maaliskuu", "Huhtikuu",
+    "Toukokuu", "Kesäkuu", "Heinäkuu", "Elokuu",
+    "Syyskuu", "Lokakuu", "Marraskuu", "Joulukuu"
+]
+
 default_consumption = [1500, 1400, 1300, 1000, 800, 700, 600, 750, 900, 1200, 1450, 1600]
 default_production = [61, 180, 423, 526, 667, 666, 658, 543, 337, 178, 50, 24]
 
-if "energy_df" not in st.session_state:
-    st.session_state.energy_df = pd.DataFrame({
-        "Kuukausi": MONTHS_FULL,
-        "Kulutus (kWh)": default_consumption,
-        "Tuotanto (kWh)": default_production
-    })
+if "consumption_data" not in st.session_state:
+    st.session_state.consumption_data = default_consumption.copy()
 
-edited_df = st.data_editor(
-    st.session_state.energy_df,
-    num_rows="fixed",
-    use_container_width=True,
-    hide_index=True,
-    column_config={
-        "Kuukausi": st.column_config.TextColumn(
-            "Kuukausi",
-            disabled=True
-        ),
-        "Kulutus (kWh)": st.column_config.NumberColumn(
-            "Kulutus (kWh)",
+if "production_data" not in st.session_state:
+    st.session_state.production_data = default_production.copy()
+
+header1, header2, header3 = st.columns([2, 2, 2])
+with header1:
+    st.markdown("**Kuukausi**")
+with header2:
+    st.markdown("**Kulutus (kWh)**")
+with header3:
+    st.markdown("**Tuotanto (kWh)**")
+
+consumption_data = []
+production_data = []
+
+for i, month in enumerate(months_full):
+    col1, col2, col3 = st.columns([2, 2, 2])
+
+    with col1:
+        st.text_input(
+            f"Kuukausi_{i}",
+            value=month,
+            disabled=True,
+            label_visibility="collapsed"
+        )
+
+    with col2:
+        cons_val = st.number_input(
+            f"Kulutus_{i}",
             min_value=0.0,
+            value=float(st.session_state.consumption_data[i]),
             step=1.0,
-            format="%.0f"
-        ),
-        "Tuotanto (kWh)": st.column_config.NumberColumn(
-            "Tuotanto (kWh)",
+            format="%.0f",
+            label_visibility="collapsed"
+        )
+        consumption_data.append(cons_val)
+
+    with col3:
+        prod_val = st.number_input(
+            f"Tuotanto_{i}",
             min_value=0.0,
+            value=float(st.session_state.production_data[i]),
             step=1.0,
-            format="%.0f"
-        ),
-    }
-)
+            format="%.0f",
+            label_visibility="collapsed"
+        )
+        production_data.append(prod_val)
 
-st.session_state.energy_df = edited_df.copy()
-
-consumption_data = clean_numeric_list(edited_df["Kulutus (kWh)"].tolist())
-production_data = clean_numeric_list(edited_df["Tuotanto (kWh)"].tolist())
+st.session_state.consumption_data = consumption_data
+st.session_state.production_data = production_data
 
 if st.button("Laske ja piirrä kaavio", use_container_width=True):
     try:
