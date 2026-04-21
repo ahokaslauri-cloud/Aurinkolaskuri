@@ -4,9 +4,156 @@ import matplotlib.pyplot as plt
 import streamlit as st
 
 st.set_page_config(
-    page_title="Aurinkosähköjärjestelmän Kannattavuusraportti",
+    page_title="Aurinkosähköanalyysi",
     layout="wide"
 )
+
+st.markdown("""
+<style>
+    .stApp {
+        background: linear-gradient(180deg, #0b0c10 0%, #111318 100%);
+    }
+
+    .block-container {
+        max-width: 1120px;
+        padding-top: 2rem;
+        padding-bottom: 3rem;
+    }
+
+    h1 {
+        color: #F2C94C;
+        text-align: center;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.3rem;
+    }
+
+    h2, h3 {
+        color: #F2C94C;
+        font-weight: 650;
+        letter-spacing: -0.01em;
+    }
+
+    p, label, .stMarkdown, .stText {
+        color: #EAEAEA;
+    }
+
+    .section-intro {
+        text-align: center;
+        color: #C7C9CE;
+        font-size: 1.05rem;
+        margin-bottom: 2rem;
+    }
+
+    .custom-card {
+        background: rgba(26, 29, 33, 0.96);
+        border: 1px solid #2B2F36;
+        border-radius: 18px;
+        padding: 1.35rem 1.35rem 1.1rem 1.35rem;
+        margin-bottom: 1.2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.28);
+    }
+
+    .card-divider {
+        border: none;
+        border-top: 1px solid #343942;
+        margin: 0.5rem 0 1rem 0;
+    }
+
+    div[data-testid="stNumberInput"] input,
+    div[data-testid="stTextInput"] input {
+        background-color: #101216 !important;
+        color: #F3F4F6 !important;
+        border: 1px solid #383E47 !important;
+        border-radius: 10px !important;
+    }
+
+    div[data-testid="stNumberInput"] label,
+    div[data-testid="stTextInput"] label {
+        color: #D7D9DD !important;
+        font-weight: 500;
+    }
+
+    div[data-testid="stButton"] button {
+        background: #F2C94C;
+        color: #111111;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        padding: 0.72rem 1.25rem;
+        box-shadow: 0 6px 18px rgba(242, 201, 76, 0.28);
+    }
+
+    div[data-testid="stButton"] button:hover {
+        background: #E0B93F;
+        color: #111111;
+    }
+
+    .month-header {
+        color: #AEB4BC;
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin-bottom: 0.35rem;
+    }
+
+    .month-label input {
+        background-color: #171A1F !important;
+        color: #F0F1F2 !important;
+        font-weight: 600 !important;
+        border: 1px solid #30343B !important;
+    }
+
+    .results-title {
+        color: #F2C94C;
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin-bottom: 0.8rem;
+    }
+
+    .metric-card {
+        background: #181B20;
+        border: 1px solid #2C3139;
+        border-radius: 16px;
+        padding: 1rem 1rem 0.9rem 1rem;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+        height: 100%;
+    }
+
+    .metric-label {
+        color: #C7CBD1;
+        font-size: 0.95rem;
+        margin-bottom: 0.45rem;
+    }
+
+    .metric-value {
+        color: #F2C94C;
+        font-size: 1.95rem;
+        font-weight: 750;
+        line-height: 1.1;
+    }
+
+    .metric-unit {
+        color: #D8DADF;
+        font-size: 1rem;
+        font-weight: 500;
+        margin-left: 0.25rem;
+    }
+
+    .sub-metric-value {
+        color: #F3F4F6;
+        font-size: 1.75rem;
+        font-weight: 720;
+        line-height: 1.1;
+    }
+
+    .subtle-line {
+        border: none;
+        border-top: 1px solid #343942;
+        margin-top: 1.1rem;
+        margin-bottom: 1.1rem;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 MONTHS_SHORT = [
     "Tammi", "Helmi", "Maalis", "Huhti", "Touko", "Kesä",
@@ -32,10 +179,8 @@ def clean_numeric_list(values, expected_len=12):
             cleaned.append(0.0)
         else:
             cleaned.append(float(v))
-
     while len(cleaned) < expected_len:
         cleaned.append(0.0)
-
     return cleaned
 
 
@@ -99,99 +244,65 @@ def analyze(
 
 
 def render_chart(consumption_data, production_data):
-    fig, ax = plt.subplots(figsize=(12, 5))
+    fig, ax = plt.subplots(figsize=(12, 4.8))
+    fig.patch.set_facecolor("#1A1D21")
+    ax.set_facecolor("#1A1D21")
+
     x = range(len(MONTHS_SHORT))
-    width = 0.38
+    width = 0.36
 
     ax.bar(
         [i - width / 2 for i in x],
         consumption_data,
         width=width,
-        label="Kulutus (kWh)"
+        label="Kulutus",
+        color="#F2C94C",
+        edgecolor="#E0B93F"
     )
     ax.bar(
         [i + width / 2 for i in x],
         production_data,
         width=width,
-        label="Tuotanto (kWh)"
+        label="Tuotanto",
+        color="#4B5563",
+        edgecolor="#6B7280"
     )
 
     ax.set_xticks(list(x))
-    ax.set_xticklabels(MONTHS_SHORT)
-    ax.set_ylabel("kWh")
-    ax.set_title("Kuukausittainen kulutus ja tuotanto")
-    ax.legend()
-    ax.grid(axis="y", alpha=0.3)
+    ax.set_xticklabels(MONTHS_SHORT, color="#DADDE2")
+    ax.set_ylabel("kWh", color="#DADDE2")
+    ax.set_title("Kuukausittainen kulutus ja tuotanto", color="#F2C94C", pad=14)
+    ax.tick_params(axis="y", colors="#DADDE2")
+    ax.spines["bottom"].set_color("#3A3F47")
+    ax.spines["left"].set_color("#3A3F47")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.grid(axis="y", color="#31353C", alpha=0.9, linestyle="-", linewidth=0.8)
+    legend = ax.legend(frameon=False)
+    for text in legend.get_texts():
+        text.set_color("#EAEAEA")
 
     st.pyplot(fig)
 
 
-st.title("Aurinkosähköanalyysi: Energia & Kannattavuus")
-st.write(
-    "Syötä järjestelmän teho, kustannukset ja energiaprofiilit. "
-    "Ohjelma laskee takaisinmaksuajan ja järjestelmän yksikköhinnan."
+def metric_card(label, value, unit="", highlight=False):
+    value_class = "metric-value" if highlight else "sub-metric-value"
+    st.markdown(
+        f"""
+        <div class="metric-card">
+            <div class="metric-label">{label}</div>
+            <div class="{value_class}">{value}<span class="metric-unit">{unit}</span></div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+st.title("Aurinkosähköanalyysi")
+st.markdown(
+    '<div class="section-intro">Energia, omakäyttö ja kannattavuus yhdellä näkymällä.</div>',
+    unsafe_allow_html=True
 )
-
-st.subheader("Järjestelmän tiedot ja taloudelliset parametrit")
-
-col1, col2 = st.columns(2)
-
-with col1:
-    system_power = st.number_input(
-        "Järjestelmän teho (kWp)",
-        min_value=0.1,
-        value=5.0,
-        step=0.1
-    )
-    initial_investment = st.number_input(
-        "Alkuinvestointi (€)",
-        min_value=0.0,
-        value=7500.0,
-        step=100.0
-    )
-    subsidy = st.number_input(
-        "Hankintatuet (€)",
-        min_value=0.0,
-        value=0.0,
-        step=100.0
-    )
-    system_lifetime = st.number_input(
-        "Järjestelmän elinikä (vuotta)",
-        min_value=1,
-        value=30,
-        step=1
-    )
-
-with col2:
-    buy_price = st.number_input(
-        "Ostetun sähkön hinta (€/kWh)",
-        min_value=0.0,
-        value=0.150,
-        step=0.001,
-        format="%.3f"
-    )
-    sell_price = st.number_input(
-        "Myydyn sähkön hinta (€/kWh)",
-        min_value=0.0,
-        value=0.050,
-        step=0.001,
-        format="%.3f"
-    )
-    daytime_consumption_percentage = st.number_input(
-        "Kulutuksen osuus päiväaikaan (%)",
-        min_value=0.0,
-        max_value=100.0,
-        value=40.0,
-        step=1.0
-    )
-
-st.subheader("Syöttötiedot")
-
-months_full = [
-    "Tammikuu", "Helmikuu", "Maaliskuu", "Huhtikuu",
-    "Toukokuu", "Kesäkuu", "Heinäkuu", "Elokuu",
-    "Syyskuu", "Lokakuu", "Marraskuu", "Joulukuu"
-]
 
 default_consumption = [1500, 1400, 1300, 1000, 800, 700, 600, 750, 900, 1200, 1450, 1600]
 default_production = [61, 180, 423, 526, 667, 666, 658, 543, 337, 178, 50, 24]
@@ -202,29 +313,54 @@ if "consumption_data" not in st.session_state:
 if "production_data" not in st.session_state:
     st.session_state.production_data = default_production.copy()
 
-header1, header2, header3 = st.columns([2, 2, 2])
-with header1:
-    st.markdown("**Kuukausi**")
-with header2:
-    st.markdown("**Kulutus (kWh)**")
-with header3:
-    st.markdown("**Tuotanto (kWh)**")
+st.markdown('<div class="custom-card">', unsafe_allow_html=True)
+st.subheader("Järjestelmä ja hinnat")
+st.markdown('<hr class="card-divider">', unsafe_allow_html=True)
+
+col1, col2 = st.columns(2)
+
+with col1:
+    system_power = st.number_input("Järjestelmän teho (kWp)", min_value=0.1, value=5.0, step=0.1)
+    initial_investment = st.number_input("Alkuinvestointi (€)", min_value=0.0, value=7500.0, step=100.0)
+    subsidy = st.number_input("Hankintatuet (€)", min_value=0.0, value=0.0, step=100.0)
+    system_lifetime = st.number_input("Järjestelmän elinikä (vuotta)", min_value=1, value=30, step=1)
+
+with col2:
+    buy_price = st.number_input("Ostetun sähkön hinta (€/kWh)", min_value=0.0, value=0.150, step=0.001, format="%.3f")
+    sell_price = st.number_input("Myydyn sähkön hinta (€/kWh)", min_value=0.0, value=0.050, step=0.001, format="%.3f")
+    daytime_consumption_percentage = st.number_input("Kulutuksen osuus päiväaikaan (%)", min_value=0.0, max_value=100.0, value=40.0, step=1.0)
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('<div class="custom-card">', unsafe_allow_html=True)
+st.subheader("Kuukausitiedot")
+st.markdown('<hr class="card-divider">', unsafe_allow_html=True)
+
+h1, h2, h3 = st.columns([2, 2, 2])
+with h1:
+    st.markdown('<div class="month-header">Kuukausi</div>', unsafe_allow_html=True)
+with h2:
+    st.markdown('<div class="month-header">Kulutus (kWh)</div>', unsafe_allow_html=True)
+with h3:
+    st.markdown('<div class="month-header">Tuotanto (kWh)</div>', unsafe_allow_html=True)
 
 consumption_data = []
 production_data = []
 
-for i, month in enumerate(months_full):
-    col1, col2, col3 = st.columns([2, 2, 2])
+for i, month in enumerate(MONTHS_FULL):
+    c1, c2, c3 = st.columns([2, 2, 2])
 
-    with col1:
+    with c1:
+        st.markdown('<div class="month-label">', unsafe_allow_html=True)
         st.text_input(
             f"Kuukausi_{i}",
             value=month,
             disabled=True,
             label_visibility="collapsed"
         )
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    with col2:
+    with c2:
         cons_val = st.number_input(
             f"Kulutus_{i}",
             min_value=0.0,
@@ -235,7 +371,7 @@ for i, month in enumerate(months_full):
         )
         consumption_data.append(cons_val)
 
-    with col3:
+    with c3:
         prod_val = st.number_input(
             f"Tuotanto_{i}",
             min_value=0.0,
@@ -249,7 +385,12 @@ for i, month in enumerate(months_full):
 st.session_state.consumption_data = consumption_data
 st.session_state.production_data = production_data
 
-if st.button("Laske ja piirrä kaavio", use_container_width=True):
+st.markdown("<div style='margin-top: 0.9rem;'></div>", unsafe_allow_html=True)
+calculate = st.button("Laske ja piirrä kaavio", use_container_width=True)
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+if calculate:
     try:
         result = analyze(
             consumption_data=consumption_data,
@@ -262,39 +403,40 @@ if st.button("Laske ja piirrä kaavio", use_container_width=True):
             daytime_consumption_percentage=daytime_consumption_percentage,
         )
 
-        st.subheader("Tulokset")
+        st.markdown('<div class="custom-card">', unsafe_allow_html=True)
+        st.markdown('<div class="results-title">Tulokset</div>', unsafe_allow_html=True)
+        st.markdown('<hr class="card-divider">', unsafe_allow_html=True)
 
-        st.markdown("### Järjestelmän kustannustehokkuus")
-        st.write(f"Järjestelmän nimellisteho: **{fmt_fi(result['system_power'], 1)} kWp**")
-        st.write(f"Nettokustannus (Alkuinvestointi - Tuet): **{fmt_fi(result['net_investment'], 2)} €**")
-        st.success(f"Järjestelmän yksikköhinta: {fmt_fi(result['price_per_kwp'], 2)} €/kWp")
+        r1, r2, r3 = st.columns(3)
+        with r1:
+            metric_card("Vuosikulutus", fmt_fi(result["total_consumption"], 0), "kWh", highlight=True)
+        with r2:
+            metric_card("Vuosituotanto", fmt_fi(result["total_production"], 0), "kWh", highlight=True)
+        with r3:
+            metric_card("Omakäyttö", fmt_fi(result["total_self_cons"], 0), "kWh", highlight=True)
 
-        st.markdown("### Energiatase (kWh/a)")
-        st.write(
-            f"Vuosikulutus: {fmt_fi(result['total_consumption'], 0)} kWh | "
-            f"Vuosituotanto: {fmt_fi(result['total_production'], 0)} kWh"
-        )
-        st.write(
-            f"Simuloitu omakäyttö: {fmt_fi(result['total_self_cons'], 0)} kWh "
-            f"({fmt_fi(result['self_consumption_rate'], 1)} %)"
-        )
-        st.write(
-            f"Ostettu verkosta: {fmt_fi(result['total_grid_buy'], 0)} kWh | "
-            f"Myyty verkkoon: {fmt_fi(result['total_grid_sell'], 0)} kWh"
-        )
+        r4, r5, r6 = st.columns(3)
+        with r4:
+            metric_card("Nettokustannus", fmt_fi(result["net_investment"], 2), "€")
+        with r5:
+            metric_card("Yksikköhinta", fmt_fi(result["price_per_kwp"], 2), "€/kWp")
+        with r6:
+            metric_card("Vuotuinen tuotto", fmt_fi(result["annual_savings"], 2), "€")
 
-        st.markdown("### Taloudellinen tuotto")
-        st.write(f"Vuotuinen säästö ja myyntitulo yhteensä: **{fmt_fi(result['annual_savings'], 2)} €**")
+        r7, r8, r9 = st.columns(3)
+        with r7:
+            if math.isinf(result["payback_time"]):
+                metric_card("Takaisinmaksuaika", "Ei toteudu", "")
+            else:
+                metric_card("Takaisinmaksuaika", fmt_fi(result["payback_time"], 1), "vuotta")
+        with r8:
+            metric_card("ROI", fmt_fi(result["roi"], 1), "%")
+        with r9:
+            metric_card("Omakäyttöaste", fmt_fi(result["self_consumption_rate"], 1), "%")
 
-        if math.isinf(result["payback_time"]):
-            st.info("Takaisinmaksuaika: Ei toteudu")
-        else:
-            st.info(f"Takaisinmaksuaika: {fmt_fi(result['payback_time'], 1)} vuotta")
-
-        st.info(f"Sijoitetun pääoman tuotto (ROI): {fmt_fi(result['roi'], 1)} %")
-
-        st.subheader("Kaavio")
+        st.markdown('<hr class="subtle-line">', unsafe_allow_html=True)
         render_chart(result["consumption_data"], result["production_data"])
+        st.markdown('</div>', unsafe_allow_html=True)
 
     except ValueError as e:
         st.error(str(e))
