@@ -3,59 +3,51 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
 
+
 st.markdown("""
 <style>
-:root {
-    --primary: #F2C94C;
-    --bg: #0F1113;
-    --card: #1A1D21;
-    --text: #EAEAEA;
-    --border: #2A2E33;
+
+/* ===== OTSIKOT (keltainen) ===== */
+h1, h2, h3 {
+    color: #F2C94C !important;
 }
 
-/* tausta */
-.stApp {
-    background-color: var(--bg);
+/* ===== NORMAALI TEKSTI ===== */
+p, label, span {
+    color: #EAEAEA !important;
 }
 
-/* tekstit */
-h1, h2, h3, label, p {
-    color: var(--text) !important;
-}
-
-/* otsikot */
-h1 {
-    color: var(--primary) !important;
-}
-
-/* kortit */
-.custom-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 1.2rem;
-    margin-bottom: 1rem;
-}
-
-/* inputit */
-input {
-    background-color: #121417 !important;
-    color: var(--text) !important;
-    border: 1px solid var(--border) !important;
-}
-
-/* nappi */
-button {
-    background-color: var(--primary) !important;
-    color: black !important;
-    border-radius: 10px !important;
+/* ===== KUUKAUDET (text_input) ===== */
+div[data-testid="stTextInput"] input {
+    color: #FFFFFF !important;
     font-weight: 600 !important;
+    background-color: #121417 !important;
+    border: 1px solid #2A2E33 !important;
 }
 
-/* hover */
-button:hover {
-    background-color: #E0B93F !important;
+/* ===== KULUTUS & TUOTANTO (number_input) ===== */
+div[data-testid="stNumberInput"] input {
+    color: #FFFFFF !important;
+    background-color: #121417 !important;
+    border: 1px solid #2A2E33 !important;
 }
+
+/* ===== INPUT LABELIT ===== */
+div[data-testid="stNumberInput"] label,
+div[data-testid="stTextInput"] label {
+    color: #DADDE2 !important;
+}
+
+/* ===== PLACEHOLDER ===== */
+::placeholder {
+    color: #AAAAAA !important;
+}
+
+/* ===== VARMISTUS ===== */
+input {
+    color: #FFFFFF !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
