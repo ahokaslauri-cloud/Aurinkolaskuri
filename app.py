@@ -16,8 +16,22 @@ st.markdown("""
 
 .block-container {
     max-width: 1120px;
-    padding-top: 2rem;
+    padding-top: 1rem !important;
     padding-bottom: 3rem;
+}
+
+/* ===== POISTA STREAMLIT YLÄPALKKI ===== */
+header {
+    visibility: hidden;
+    height: 0px;
+}
+
+#MainMenu {
+    visibility: hidden;
+}
+
+footer {
+    visibility: hidden;
 }
 
 /* Hero */
@@ -176,17 +190,6 @@ div[data-testid="stButton"] button:hover {
 }
 </style>
 """, unsafe_allow_html=True)
-
-/* ===== POISTA STREAMLIT YLÄPALKKI ===== */
-header {
-    visibility: hidden;
-    height: 0px;
-}
-
-/* poistaa ylimääräisen tyhjän tilan */
-.block-container {
-    padding-top: 1rem !important;
-}
 
 MONTHS_SHORT = [
     "Tammi", "Helmi", "Maalis", "Huhti", "Touko", "Kesä",
