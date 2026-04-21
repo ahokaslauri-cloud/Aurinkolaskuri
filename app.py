@@ -3,6 +3,62 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
 
+st.markdown("""
+<style>
+:root {
+    --primary: #F2C94C;
+    --bg: #0F1113;
+    --card: #1A1D21;
+    --text: #EAEAEA;
+    --border: #2A2E33;
+}
+
+/* tausta */
+.stApp {
+    background-color: var(--bg);
+}
+
+/* tekstit */
+h1, h2, h3, label, p {
+    color: var(--text) !important;
+}
+
+/* otsikot */
+h1 {
+    color: var(--primary) !important;
+}
+
+/* kortit */
+.custom-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+/* inputit */
+input {
+    background-color: #121417 !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
+}
+
+/* nappi */
+button {
+    background-color: var(--primary) !important;
+    color: black !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+}
+
+/* hover */
+button:hover {
+    background-color: #E0B93F !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 st.set_page_config(
     page_title="Aurinkosähköanalyysi",
     layout="wide"
