@@ -1,28 +1,23 @@
-import re
 import math
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
 
-st.set_page_config(page_title="Aurinkosähköjärjestelmän Kannattavuusraportti", layout="wide")
+st.set_page_config(
+    page_title="Aurinkosähköjärjestelmän Kannattavuusraportti",
+    layout="wide"
+)
 
-MONTHS = ['Tammi', 'Helmi', 'Maalis', 'Huhti', 'Touko', 'Kesä', 'Heinä', 'Elo', 'Syys', 'Loka', 'Marras', 'Joulu']
+MONTHS_SHORT = [
+    "Tammi", "Helmi", "Maalis", "Huhti", "Touko", "Kesä",
+    "Heinä", "Elo", "Syys", "Loka", "Marras", "Joulu"
+]
 
-
-def parse_input(text: str) -> list[float]:
-    lines = text.strip().split('\n') if text.strip() else []
-    data = []
-    number_regex = r'([0-9]+([,\.][0-9]+)?)'
-
-    for line in lines:
-        match = re.search(number_regex, line)
-        if match:
-            number = float(match.group(1).replace(',', '.'))
-            data.append(number)
-        else:
-            data.append(0.0)
-
-    return data
+MONTHS_FULL = [
+    "Tammikuu", "Helmikuu", "Maaliskuu", "Huhtikuu",
+    "Toukokuu", "Kesäkuu", "Heinäkuu", "Elokuu",
+    "Syyskuu", "Lokakuu", "Marraskuu", "Joulukuu"
+]
 
 
 def fmt_fi(value: float, decimals: int = 0) -> str:
@@ -30,13 +25,35 @@ def fmt_fi(value: float, decimals: int = 0) -> str:
     return formatted.replace(",", "X").replace(".", ",").replace("X", " ")
 
 
-def analyze(consumption_data, production_data, system_power, initial_investment, subsidy,
-            buy_price, sell_price, daytime_consumption_percentage):
+def clean_numeric_list(values, expected_len=12):
+    cleaned = []
+    for v in values[:expected_len]:
+        if pd.isna(v):
+            cleaned.append(0.0)
+        else:
+            cleaned.append(float(v))
+
+    while len(cleaned) < expected_len:
+        cleaned.append(0.0)
+
+    return cleaned
+
+
+def analyze(
+    consumption_data,
+    production_data,
+    system_power,
+    initial_investment,
+    subsidy,
+    buy_price,
+    sell_price,
+    daytime_consumption_percentage
+):
     if len(consumption_data) < 12 or len(production_data) < 12:
         raise ValueError("Syötä 12 kuukauden tiedot.")
 
-    consumption_data = consumption_data[:12]
-    production_data = production_data[:12]
+    consumption_data = clean_numeric_list(consumption_data, 12)
+    production_data = clean_numeric_list(production_data, 12)
 
     day_use_percentage = daytime_consumption_percentage / 100.0
     net_investment = initial_investment - subsidy
@@ -82,21 +99,25 @@ def analyze(consumption_data, production_data, system_power, initial_investment,
 
 
 def render_chart(consumption_data, production_data):
-    df = pd.DataFrame({
-        "Kuukausi": MONTHS,
-        "Kulutus (kWh)": consumption_data,
-        "Tuotanto (kWh)": production_data,
-    })
-
     fig, ax = plt.subplots(figsize=(12, 5))
-    x = range(len(MONTHS))
+    x = range(len(MONTHS_SHORT))
     width = 0.38
 
-    ax.bar([i - width / 2 for i in x], df["Kulutus (kWh)"], width=width, label="Kulutus (kWh)")
-    ax.bar([i + width / 2 for i in x], df["Tuotanto (kWh)"], width=width, label="Tuotanto (kWh)")
+    ax.bar(
+        [i - width / 2 for i in x],
+        consumption_data,
+        width=width,
+        label="Kulutus (kWh)"
+    )
+    ax.bar(
+        [i + width / 2 for i in x],
+        production_data,
+        width=width,
+        label="Tuotanto (kWh)"
+    )
 
     ax.set_xticks(list(x))
-    ax.set_xticklabels(MONTHS)
+    ax.set_xticklabels(MONTHS_SHORT)
     ax.set_ylabel("kWh")
     ax.set_title("Kuukausittainen kulutus ja tuotanto")
     ax.legend()
@@ -106,64 +127,108 @@ def render_chart(consumption_data, production_data):
 
 
 st.title("Aurinkosähköanalyysi: Energia & Kannattavuus")
-st.write("Syötä järjestelmän teho, kustannukset ja energiaprofiilit. Ohjelma laskee takaisinmaksuajan ja järjestelmän yksikköhinnan.")
+st.write(
+    "Syötä järjestelmän teho, kustannukset ja energiaprofiilit. "
+    "Ohjelma laskee takaisinmaksuajan ja järjestelmän yksikköhinnan."
+)
 
 st.subheader("Järjestelmän tiedot ja taloudelliset parametrit")
 
 col1, col2 = st.columns(2)
 
 with col1:
-    system_power = st.number_input("Järjestelmän teho (kWp)", min_value=0.1, value=5.0, step=0.1)
-    initial_investment = st.number_input("Alkuinvestointi (€)", min_value=0.0, value=7500.0, step=100.0)
-    subsidy = st.number_input("Hankintatuet (€)", min_value=0.0, value=0.0, step=100.0)
-    system_lifetime = st.number_input("Järjestelmän elinikä (vuotta)", min_value=1, value=30, step=1)
+    system_power = st.number_input(
+        "Järjestelmän teho (kWp)",
+        min_value=0.1,
+        value=5.0,
+        step=0.1
+    )
+    initial_investment = st.number_input(
+        "Alkuinvestointi (€)",
+        min_value=0.0,
+        value=7500.0,
+        step=100.0
+    )
+    subsidy = st.number_input(
+        "Hankintatuet (€)",
+        min_value=0.0,
+        value=0.0,
+        step=100.0
+    )
+    system_lifetime = st.number_input(
+        "Järjestelmän elinikä (vuotta)",
+        min_value=1,
+        value=30,
+        step=1
+    )
 
 with col2:
-    buy_price = st.number_input("Ostetun sähkön hinta (€/kWh)", min_value=0.0, value=0.150, step=0.001, format="%.3f")
-    sell_price = st.number_input("Myydyn sähkön hinta (€/kWh)", min_value=0.0, value=0.050, step=0.001, format="%.3f")
-    daytime_consumption_percentage = st.number_input("Kulutuksen osuus päiväaikaan (%)", min_value=0.0, max_value=100.0, value=40.0, step=1.0)
+    buy_price = st.number_input(
+        "Ostetun sähkön hinta (€/kWh)",
+        min_value=0.0,
+        value=0.150,
+        step=0.001,
+        format="%.3f"
+    )
+    sell_price = st.number_input(
+        "Myydyn sähkön hinta (€/kWh)",
+        min_value=0.0,
+        value=0.050,
+        step=0.001,
+        format="%.3f"
+    )
+    daytime_consumption_percentage = st.number_input(
+        "Kulutuksen osuus päiväaikaan (%)",
+        min_value=0.0,
+        max_value=100.0,
+        value=40.0,
+        step=1.0
+    )
 
 st.subheader("Syöttötiedot")
 
-default_consumption = "1500\n1400\n1300\n1000\n800\n700\n600\n750\n900\n1200\n1450\n1600"
-default_production = "61\n180\n423\n526\n667\n666\n658\n543\n337\n178\n50\n24"
+default_consumption = [1500, 1400, 1300, 1000, 800, 700, 600, 750, 900, 1200, 1450, 1600]
+default_production = [61, 180, 423, 526, 667, 666, 658, 543, 337, 178, 50, 24]
 
-st.subheader("Syöttötiedot")
-
-months_full = [
-    "Tammikuu", "Helmikuu", "Maaliskuu", "Huhtikuu",
-    "Toukokuu", "Kesäkuu", "Heinäkuu", "Elokuu",
-    "Syyskuu", "Lokakuu", "Marraskuu", "Joulukuu"
-]
-
-default_consumption = [1500,1400,1300,1000,800,700,600,750,900,1200,1450,1600]
-default_production = [61,180,423,526,667,666,658,543,337,178,50,24]
-
-df = pd.DataFrame({
-    "Kuukausi": months_full,
-    "Kulutus (kWh)": default_consumption,
-    "Tuotanto (kWh)": default_production
-})
+if "energy_df" not in st.session_state:
+    st.session_state.energy_df = pd.DataFrame({
+        "Kuukausi": MONTHS_FULL,
+        "Kulutus (kWh)": default_consumption,
+        "Tuotanto (kWh)": default_production
+    })
 
 edited_df = st.data_editor(
-    df,
+    st.session_state.energy_df,
     num_rows="fixed",
     use_container_width=True,
+    hide_index=True,
     column_config={
-        "Kuukausi": st.column_config.TextColumn(disabled=True),
-        "Kulutus (kWh)": st.column_config.NumberColumn(),
-        "Tuotanto (kWh)": st.column_config.NumberColumn()
+        "Kuukausi": st.column_config.TextColumn(
+            "Kuukausi",
+            disabled=True
+        ),
+        "Kulutus (kWh)": st.column_config.NumberColumn(
+            "Kulutus (kWh)",
+            min_value=0.0,
+            step=1.0,
+            format="%.0f"
+        ),
+        "Tuotanto (kWh)": st.column_config.NumberColumn(
+            "Tuotanto (kWh)",
+            min_value=0.0,
+            step=1.0,
+            format="%.0f"
+        ),
     }
 )
 
-consumption_data = edited_df["Kulutus (kWh)"].tolist()
-production_data = edited_df["Tuotanto (kWh)"].tolist()
+st.session_state.energy_df = edited_df.copy()
+
+consumption_data = clean_numeric_list(edited_df["Kulutus (kWh)"].tolist())
+production_data = clean_numeric_list(edited_df["Tuotanto (kWh)"].tolist())
 
 if st.button("Laske ja piirrä kaavio", use_container_width=True):
     try:
-        consumption_data = parse_input(consumption_input)
-        production_data = parse_input(production_input)
-
         result = analyze(
             consumption_data=consumption_data,
             production_data=production_data,
